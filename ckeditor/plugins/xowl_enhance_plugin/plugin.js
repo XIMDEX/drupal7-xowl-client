@@ -41,7 +41,8 @@ suggestions_field = jQuery("#suggestions_field");
                     $.ajax({
                         type: 'POST',
                         dataType: "json",
-                        url: Drupal.settings.basePath + 'xowl/enhance',
+                        //url: Drupal.settings.basePath + 'xowl/enhance',
+                        url: Drupal.settings.basePath + '?q=xowl/enhance',
                         async: false,
                         data: {
                             content: content
