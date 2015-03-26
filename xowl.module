@@ -1,0 +1,273 @@
+<?php
+
+/**
+ * @file
+ * Module to interact with Xowl for semantic tagging
+ * @author Ximdex <dev@ximdex.com>
+ */
+
+/**
+ * <p>Implements hook_help().</p>
+ *
+ * <p>Displays help and module information</p>
+ *
+ * @param string path
+ *   path of the site we're using to display help
+ * @param array arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function xowl_help($path, $arg)
+{
+    switch ($path) {
+        case "admin/help#xowl":
+            return '<p>' . t("A module to provide semantic tagging to Drupal content through Xowl") . '</p>';
+            break;
+
+        default:
+            break;
+    }
+}
+
+/**
+ * <p>Implements hook_menu().</p>
+ *
+ *
+ */
+function xowl_menu()
+{
+    $items = array();
+    $items['admin/settings/xowl'] = array(
+        'title' => 'Xowl Configuration',
+        'description' => 'Configuration for Xowl module',
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+    // Admin interface Xowl server
+    $items['admin/settings/xowl/server'] = array(
+        'title' => 'Xowl server configuration',
+        'description' => 'Xowl server-related configuration',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('xowl_server_configuration_form'),
+        'access arguments' => array('access administration pages'), // Only users with that permission
+        'type' => MENU_NORMAL_ITEM
+    );
+
+    //Admin interface Content type selection form
+    $items['admin/settings/xowl/allowed-content-type'] = array(
+        'title' => 'Xowl Content Type selection',
+        'description' => 'Allows selecting Content Types that will be enabled to use Xowl to enrich content',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('xowl_allowed_content_type_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    //Endpoint receiving Xowl enhance requests
+    $items['xowl/enhance'] = array(
+        'title' => 'Xowl Ajax enhance',
+        'description' => 'Analyze and enhance the content using XOwl',
+        'page callback' => 'xowl_enhance_content',
+        'file' => '',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+/**
+ * <p>Configuration form for Xowl module</p>
+ */
+function xowl_server_configuration_form()
+{
+    $form = array();
+
+    $form['overview'] = array(
+        '#markup' => t('This interface allows the user to integrate the XOwl module with Drupal'),
+        '#prefix' => '<p>',
+        '#suffix' => '</p>',
+    );
+
+    $form['xowl_endpoint'] = array(
+        '#title' => t('Endpoint'),
+        '#description' => t('Set the endpoint of the XOwl server. Example: http://domain.com:port/xowl'),
+        '#type' => 'textfield',
+        '#required' => TRUE,
+        '#default_value' => variable_get('xowl_endpoint', 'http://localhost/xowl'),
+    );
+
+    return system_settings_form($form);
+}
+
+/**
+ * Implements hook_form.
+ * form to save content types and fields
+ *
+ */
+function xowl_allowed_content_type_form($node, &$form_state) {
+  $form = array();
+
+  $form['overview'] = array(
+    '#prefix' => '<p>',
+    '#markup' => t('This interface allows the user to select content types that will be enabled to use Xowl for enrichment'),
+    '#suffix' => '</p>',
+  );
+
+  // Get the content_types names:
+  $contentTypes = node_type_get_names();
+  // Get the default values:
+  $currentValues = variable_get('xowl_enabled_content_types', array());
+  //Set all the content types which are having file fields
+  $form['xowl_enabled_content_types'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Select the content types that will have Xowl plugin'),
+    '#options' => $contentTypes,
+    '#default_value' => $currentValues,
+  );
+
+  $current_forms_values = check_plain(variable_get('xowl_allowed_forms', ''));
+  $form['xowl_allowed_forms'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Set other allowed forms where it\'ll use the xowl plugin'),
+    '#description' => t('Set a set of forms separated by commas'),
+    '#default_value' => $current_forms_values,
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * <p>Implements hook_form_alter()</p>
+ * <p>Modify the edit form to include some JS variables needed to decide whether the enhancer button must be enabled or not</p>
+ */
+function xowl_form_alter(&$form, &$form_state, $form_id) {
+    $validContentTypes = array_filter(variable_get('xowl_enabled_content_types', array()));
+    // Get the allowed forms:
+    $valid_forms = check_plain(variable_get('xowl_allowed_forms', ''));
+    $valid_forms_values = explode(',', $valid_forms);
+
+    // Check if is valid content type:
+    $check_content_type = isset($form['#node']) && in_array($form['#node']->type, $validContentTypes);
+    // Check if is a allowed form_id:
+    $check_is_allowed_form = !empty($valid_forms_values) && in_array($form_id, array_map('trim', $valid_forms_values));
+
+    if ($check_content_type || $check_is_allowed_form) {
+        drupal_add_js(array('xowl' => array('enable_xowl' => 1,"xowl_path" => drupal_get_path('module', 'xowl'), "basedir" => base_path() . drupal_get_path('module', 'xowl'), "dbase_path" => url(NULL, array('absolute' => TRUE)) ), ),'setting');
+        drupal_add_css(drupal_get_path('module', 'xowl') . '/resources/css/xowl.css', 'file');
+        /* Adding a hidden field to store the selected suggestions */
+        $form['suggestions'] = array(
+        '#title' => t('Suggestions'),
+        '#description' => t('Selected suggestions'),
+        '#type' => 'hidden',
+            '#attributes' => array('id' => "suggestions_field"),
+
+        '#weight' => 0
+        );
+
+        $form['#validate'][] = 'xowl_validate';
+        $form['#submit'][] = 'xowl_submit';
+    }
+}
+
+/**
+ * <p>Validate function for Xowl forms which will call the 'xowl_form_validate' hook
+ * to allow other modules to attach their handlers</p>
+ * @param mixed $form
+ * @param mixed $form_state
+ */
+function xowl_validate($form, &$form_state) {
+    $form_state['values']['suggestions'] = isset($form_state['values']['suggestions']) && !empty($form_state['values']['suggestions']) ? json_decode($form_state['values']['suggestions'], true) : array();
+    module_invoke_all('xowl_form_validate', $form, $form_state);
+}
+
+/**
+ * <p>Submit function for Xowl forms which will call the 'xowl_form_submit' hook
+ * to allow other modules to attach their handlers</p>
+ * @param Sub $form
+ * @param type $form_state
+ */
+function xowl_submit($form, &$form_state) {
+     module_invoke_all('xowl_form_submit', $form, $form_state);
+}
+
+/**
+ * <p>Implements hook_node_insert</p>
+ * <p>Creates the XML representation of the node to be sent to Ximdex</p>
+ */
+function xowl_node_insert($node)
+{
+    module_load_include('util', 'xowl', 'includes/xowl');
+    $body = isset($node->body['und'][0]['value']) ? $node->body['und'][0]['value'] : '';
+    $xml = xowl_createXMLRepresentation($body);
+
+    // Uses the generated XML
+    // Ex. print XML to log
+    error_log($xml);
+}
+
+/**
+ * <p>Implements hook_node_update</p>
+ * <p>Creates the XML representation of the node to be sent to Ximdex</p>
+ */
+function xowl_node_update($node)
+{
+    module_load_include('util', 'xowl', 'includes/xowl');
+    $body = isset($node->body['und'][0]['value']) ? $node->body['und'][0]['value'] : '';
+    $xml = xowl_createXMLRepresentation($body);
+
+    // Uses the generated XML
+    // Ex. print XML to log
+    error_log($xml);
+}
+
+/**
+ * <p>Implements hook_node_delete</p>
+ * <p>Remove the node from Ximdex</p>
+ */
+function xowl_node_delete($node)
+{
+   //TODO: Implements logic when a Drupal node is deleted
+}
+
+
+/**
+ * <p>Implements hook_ckeditor_plugin().</p>
+ *
+ */
+function xowl_ckeditor_plugin()
+{
+    return array(
+        'xowl_enhance_plugin' => array(
+            'name' => 'xowl_enhance_plugin',
+            'path' => drupal_get_path('module', 'xowl') . '/ckeditor/plugins/xowl_enhance_plugin/',
+            'desc' => t('Xowl plugin to allow enhancing content in CKEditor'),
+            'buttons' => array(
+                'xowl_enhance_plugin_button' => array(
+                    'icon' => 'icons/xowl_enhance_plugin_button.png',
+                    'label' => 'Xowl enhance',
+                )
+            ),
+            'load' => TRUE,
+        ),
+    );
+}
+
+/**
+ * <p>Callback function for 'xowl/enhance' endpoint</p>
+ *
+ * <p>This function calls Ximdex XOwl endpoint to analyze and enhance the content</p>
+ */
+function xowl_enhance_content()
+{
+    module_load_include('php', 'xowl', 'includes/XowlStanbolService');
+    $xowlEndpoint = variable_get('xowl_endpoint');
+    $content = filter_input(INPUT_POST, 'content');
+    $service = new XowlStanbolService($xowlEndpoint);
+    $data = $service->suggest($content)->getData();
+    $data["text"] = $content;
+
+    /*$result = '{"text":"Paris is the capital of France","semantic":{"people":[],"places":{"France":{"confidence":"98,52","type":"dPlace","isSemantic":1,"entities":[{"uri": "http://dbpedia.org/resource/France", "label": "France"}, {"uri": "http://dbpedia.org/resource/New_France", "label": "New France"}], "others":[{"@id":"urn:enhancement-3fb82789-1382-1540-f713-2fe4cbdddca8","@type":["enhancer:Enhancement","enhancer:TextAnnotation"],"dc:created":"2014-06-19T15:46:14.388Z","dc:creator":"org.apache.stanbol.enhancer.engines.opennlp.impl.NamedEntityExtractionEnhancementEngine","dc:type":"dbp-ont:Place","enhancer:confidence":0.9851806,"enhancer:end":30,"enhancer:extracted-from":"urn:content-item-sha1-2e431f6d6fb424581608115debe9f3d98e1f7fd9","enhancer:selected-text":{"@language":"en","@value":"France"},"enhancer:selection-context":{"@language":"en","@value":"Paris is the capital of France"},"enhancer:start":24}]},"Paris":{"confidence":"63,98","type":"dPlace","isSemantic":1,"entities":[{"uri": "http://dbpedia.org/resource/Paris", "label": "Paris"}, {"uri": "http://dbpedia.org/resource/Paris_Commune", "label": "Paris Commune"}], "others":[{"@id":"urn:enhancement-5cbd8c9e-e4b9-45cc-495e-bace5dee71af","@type":["enhancer:Enhancement","enhancer:TextAnnotation"],"dc:created":"2014-06-19T15:46:14.388Z","dc:creator":"org.apache.stanbol.enhancer.engines.opennlp.impl.NamedEntityExtractionEnhancementEngine","dc:type":"dbp-ont:Place","enhancer:confidence":0.63981426,"enhancer:end":5,"enhancer:extracted-from":"urn:content-item-sha1-2e431f6d6fb424581608115debe9f3d98e1f7fd9","enhancer:selected-text":{"@language":"en","@value":"Paris"},"enhancer:selection-context":{"@language":"en","@value":"Paris is the capital of France"},"enhancer:start":0}]}},"orgs":[]},"status":"ok"}';*/
+    header('Content-type: application/json');
+    echo json_encode($data);
+}

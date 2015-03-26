@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * @author Ximdex <dev@ximdex.com>
+ * 
+ * <p>Xowl utility functions</p>
+ */
+
+/**
+ * <p>Creates an XML representation from an HTML source using a transformation table</p>
+ * 
+ * @param string $htmlContent The content to be transformed
+ * @return a string containing the XML representation
+ */
+function xowl_createXMLRepresentation($htmlContent)
+{
+    $pattern = '/<(\/?)(\w+)\s*.*?(([\w-_]+=(?:\'|\")?(?:.*?)(?:\'|\")?)*)\s?(\/?)>/';
+    $transformTable = array(
+        'p' => 'paragraph',
+        'ul' => 'list',
+        'ol' => 'list',
+        'li' => 'item',
+        'a' => 'link',
+        'img' => 'image'
+    );
+
+    $info = array();
+
+    $xml = preg_replace_callback($pattern, function($matches) use ($transformTable, &$info) {
+
+        if (isset($transformTable[$matches[2]])) {
+            $newElement = $transformTable[$matches[2]];
+
+            $attributes = explode(" ", $matches[3]);
+            $extra = array();
+            $temp = null;
+            $isSuggestion = false;
+            foreach ($attributes as $attributeValue) {
+                if (!empty($attributeValue)) {
+                    list($attr, $val) = explode("=", $attributeValue);
+                    $val = trim($val, "\"\'");
+                    switch ($attr) {
+                        case "href":
+                        case "src":
+                            array_push($extra, $attributeValue);
+                            $temp = $val;
+                            break;
+                        case "class":
+                            if (strpos($val, "xowl-suggestion") >= 0) {
+                                $isSuggestion = true;
+                            }
+                            break;
+                        default:
+                    }
+                }
+            }
+
+            $res = "<" . $matches[1] . $newElement;
+            if (count($extra) > 0) {
+                $res .= " " . implode(" ", $extra);
+            }
+            $res .= $matches[5] . ">";
+
+            if ($isSuggestion && $temp != null) {
+                $info['xedit-tags'][] = $temp;
+            }
+            return $res;
+        } else {
+            return "";
+        }
+    }, $htmlContent);
+
+    $returnedXML = "<document><content>" . $xml . "</content>";
+    $returnedXML .= "<tags>";
+    if(count($info['xedit-tags'])>0){
+        foreach ($info['xedit-tags'] as $tag) {
+            $returnedXML .= "<tag>" . $tag . "</tag>";
+        }
+    }
+    $returnedXML .= "</tags></document>";
+    return $returnedXML;
+}
+
+?>

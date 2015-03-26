@@ -1,0 +1,20 @@
+name = xowl
+description = XOwl module for Drupal. Allows semantic tagging and advanced features through XOwl
+core = 7.x
+package = Semantic
+php = 5.3
+;version =
+; Optional. Array of other modules that your module requires. If you need an specific version of a dependency
+;dependencies [] = module_name (major.minor) or (>major.minor) > >= < <= != = == . Default is = or == (equal)
+dependencies[] = ckeditor
+dependencies[] = jquery_update
+; Optional. Dynamic loading code registry. Declare any code files containing class or interface declarations
+files[] = includes/xowl.inc
+; Optional. For styles to be added on every page like theme.info does
+stylesheets[all][] =
+; Optional. For scripts to be added on every page
+;scripts[] =
+; Optional. The path of the module's (main) configuration page. With hook_menu you will manage the request
+configure = admin/settings/xowl
+;Optional. If a module should never be disabled
+;required = true
