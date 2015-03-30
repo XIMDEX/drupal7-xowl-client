@@ -5,14 +5,15 @@ This project is related with the client for drupal 8. Given that both drupal 7 a
 
 * Xowl service client for drupal 8: https://github.com/XIMDEX/drupal8-xowl-client
 
-## Requirement
-* drupal 7: https://www.drupal.org/project/drupal
-* módulo ckeditor para drupal 7: http://ftp.drupal.org/files/projects/ckeditor-7.x-1.16.tar.gz
-* módulo jquery_update: http://ftp.drupal.org/files/projects/jquery_update-7.x-2.5.tar.gz
-* módulo xowl: https://github.com/XIMDEX/drupal7-xowl-client.git
+## Requirements
+* Drupal 7: https://www.drupal.org/project/drupal
+* module ckeditor for Drupal 7: http://ftp.drupal.org/files/projects/ckeditor-7.x-1.16.tar.gz
+* module jquery_update: http://ftp.drupal.org/files/projects/jquery_update-7.x-2.5.tar.gz
+* module xowl for Drupal 7: https://github.com/XIMDEX/drupal7-xowl-client.git
 
 ## Setup
-* Install drupal 7. Check rwx permission are correct.
+* Install drupal 7. 
+* Check that rwx permission are correct.
 * Go to folder: /DRUPAL_ROOT/sites/all/modules/.
 * Unzip the 3 drupal modules in this folder. We must have 3 folders: *ckeditor*, *drupal7-xowl-client*, *jquery_update*.
 * Access drupal from your internet browser, select *modules*. We'll see xowl at the end of the list. We can not install it now because it depends on the other two, so let's install them first.
