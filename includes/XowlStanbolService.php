@@ -24,8 +24,7 @@
  *  @author Ximdex DevTeam <dev@ximdex.com>
  *  @version $Revision$
  */
-class XowlStanbolService
-{
+class XowlStanbolService {
 
     const ENCODING = "UTF-8";
     const URL_STRING = "";
@@ -41,33 +40,31 @@ class XowlStanbolService
         'dbp-ont:Place' => 'dPlace',
         'dbp-ont:Organisation' => 'dOrganisation'
     );
-    
     protected $data;
     protected $endpoint;
 
-    public function __construct($endpoint)
-    {
+    public function __construct($endpoint) {
         $this->setEndpoint($endpoint);
     }
 
     public function setEndpoint($endpoint) {
-        if(filter_var($endpoint, FILTER_VALIDATE_URL) == FALSE) {
-            throw new InvalidArgumentException($endpoint." is not a valid URL");
+        if (filter_var($endpoint, FILTER_VALIDATE_URL) == FALSE) {
+            throw new InvalidArgumentException($endpoint . " is not a valid URL");
         }
-        
+
         $this->endpoint = $endpoint;
     }
-    
+
     public function getEndpoint() {
         return $this->endpoint;
     }
-    
+
     /**
      * <p>Query the server with the default response format (application/json)</p>
      * @param unknown_type $text
      */
-    public function suggest($text)
-    {
+    public function suggest($text) {
+
         return $this->query($text, self::RESPONSE_FORMAT);
     }
 
@@ -76,8 +73,7 @@ class XowlStanbolService
      * @param $format output format for data: array or json is waited.
      * @return false if there aren't data. Json or array otherwise.
      */
-    public final function getData($format = null)
-    {
+    public final function getData($format = null) {
 
         if (!$this->data)
             return false;
@@ -96,24 +92,13 @@ class XowlStanbolService
      * @param unknown_type $format
      * @return this. 
      */
-    private function query($text, $format)
-    {
+    private function query($text, $format) {
+        $dataText = array(
+            'token' => '000-00000-000',
+            'content' => $text
+        );
 
-        $headers = array(
-            //To remove HTTP 100 Continue messages
-            'Expect' => '',
-            //Response Format
-            'Accept' => $format,
-            //Content-Type. We should use text/html but there are some complications while parsing in order to highlight the mentions
-            'Content-Type' => 'text/plain');
-
-        $response = $this->doRequest('POST', $text, $headers);
-        
-        if ($response->code != 200) {
-            return NULL;
-        }
-
-        $data = $response->data;
+        $data = $this->doRequest('POST', $dataText, array());
         $this->data = $this->parseData($data, $text);
         return $this;
     }
@@ -125,13 +110,12 @@ class XowlStanbolService
      * @param array $headers The headers to be put in the request
      * @return StdClass An Object containing the response (code, data, etc)
      */
-    private function doRequest($method, $data = NULL, $headers = array())
-    {
-        //$content = http_build_query(array('content' => $data));
+    private function doRequest($method, $data = NULL, $headers = array()) {
+        $content = http_build_query($data);
         $options = array(
             'headers' => $headers,
             'method' => $method,
-            'data' => $data
+            'data' => $content
         );
 
         $response = drupal_http_request($this->endpoint, $options);
@@ -140,78 +124,67 @@ class XowlStanbolService
     }
 
     /**
-     * 
+     *
      * <p>Parse response data from stanbol server. JSON Format default.</p>
      * @param string|json $data The data in JSON format to be parsed
      * @param string $text The text being processed
-     * 
+     *
      * @return an array containing the mentions of the text and their related entities
      */
-    private function parseData($data, $text)
-    {
-        if (function_exists('json_decode')) {
-            $data = json_decode($data, true);
-        } else {
-            return NULL;
-        }
+    private function parseData($json, $text) {
+        die($json->data);
 
         $result = array();
         $result['semantic'] = array();
-        
-        foreach ($data as $key => $values) {
-            if (strcmp("@graph", $key) == 0) { //only analyze the @graph object
-                foreach ($values as $key => $value) {
-                    // Processing Text Annotations
-                    if (isset($value['@type']) && (in_array("enhancer:TextAnnotation", $value['@type']) || in_array("TextAnnotation", $value['@type']))) {
-                            $prefix = in_array("enhancer:TextAnnotation", $value['@type']) ? "enhancer:" : "";
-                            
-                            
-                            $start = intval($value[$prefix.'start']);
-                            $end = intval($value[$prefix.'end']);
-                            
-                            if($start > 0) {
-                                $prevChar = $text{$start-1};
-                                $prevPrevChar = $text{$start-2};
-                                $postChar = $text{$end};
 
-                                // Checking if the mention is <mention> or </mention> or <mention> or </mention> because we are going to skip mentions which can have the form of an HTML tag
-                                if(($postChar === "\n") || ($prevChar === "\n") || (($prevChar === "<" || ($prevChar === "/" && $prevPrevChar === "<")) && $text{$end} === ">") || (($prevChar === ";" || ($prevChar === "/" && $prevPrevChar === ";")) && $text{$end} === "&") ){
-                                    // Skipping mention processing because it represents a html tag
-                                    continue;
-                                }
-                            }
-                            $entities = $this->retrieveEntities($value["@id"], $values, $prefix);
-                            
-                            // If there aren't entities (Entity Annotations) related to this text annotation, skip it
-                            if(0 === count($entities)) {
-                                continue;
-                            }
-                           
-                            $textAnnotation = array();
-                            $textAnnotation['selected-text'] = $value[$prefix.'selected-text']['@value'];
-                            $textAnnotation['text'] = $value[$prefix.'selected-text']['@value'];
-                            $textAnnotation['start'] = $value[$prefix.'start'];
-                            $textAnnotation['end'] = $value[$prefix.'end'];
-                            $textAnnotation['confidence'] = $value[$prefix.'confidence'] ? $value[$prefix.'confidence'] : 0;
-                            $textAnnotation['entities'] = $entities;
-                            
-                            array_push($result['semantic'], $textAnnotation);
-                    }
+        if (isset($data['@graph'])) {
+            foreach ($data['@graph'] as $k => $value) {
+                // Processing Text Annotations
+                if (!isset($value['@type']) || !is_array($value['@type'])) {
+                    continue;
                 }
-                
-                usort($result['semantic'], function($ta1, $ta2) {
-                    $start1 = intval($ta1['start']);
-                    $start2 = intval($ta2['start']);
-                    
-                    if ($start1 === $start2) {
-                        return 0;
+                if (isset($value['@type']) && (in_array("enhancer:TextAnnotation", $value['@type']) || in_array("TextAnnotation", $value['@type']))) {
+                    $prefix = in_array("enhancer:TextAnnotation", $value['@type']) ? "enhancer:" : "";
+                    if (isset($value['dc:type']) && $value['dc:type'] == 'dc:LinguisticSystem') {
+                        continue;
+                    }
+                    if (!isset($value[$prefix . 'end'])) {
+                        continue;
                     }
 
-                    return ($start1 > $start2) ? 1 : -1;
-                });
+                    $start = intval($value[$prefix . 'start']);
+                    $end = intval($value[$prefix . 'end']);
+
+                    $entities = $this->retrieveEntities($value["@id"], $data['@graph'], $prefix);
+                    // If there aren't entities (Entity Annotations) related to this text annotation, skip it
+                    if (0 === count($entities)) {
+                        continue;
+                    }
+
+                    $textAnnotation = array();
+                    $textAnnotation['selected-text'] = $value[$prefix . 'selected-text']['@value'];
+                    $textAnnotation['text'] = $value[$prefix . 'selected-text']['@value'];
+                    $textAnnotation['start'] = $value[$prefix . 'start'];
+                    $textAnnotation['end'] = $value[$prefix . 'end'];
+                    $textAnnotation['confidence'] = $value[$prefix . 'confidence'] ? $value[$prefix . 'confidence'] : 0;
+                    $textAnnotation['entities'] = $entities;
+
+                    array_push($result['semantic'], $textAnnotation);
+                }
             }
+
+            usort($result['semantic'], function ($ta1, $ta2) {
+                $start1 = intval($ta1['start']);
+                $start2 = intval($ta2['start']);
+
+                if ($start1 === $start2) {
+                    return 0;
+                }
+
+                return ($start1 > $start2) ? 1 : -1;
+            });
         }
-        
+
         return $result;
     }
 
@@ -223,26 +196,25 @@ class XowlStanbolService
      *
      * @return an array containing the possible entities
      */
-    private function retrieveEntities($textAnnotationId, $values, $prefix= '')
-    {
+    private function retrieveEntities($textAnnotationId, $values, $prefix = '') {
         $entities = array();
         $dcPrefix = $prefix !== '' ? 'dc:' : '';
         foreach ($values as $value) {
-            if (isset($value["@type"]) && in_array($prefix."EntityAnnotation", $value["@type"]) && isset($value[$dcPrefix."relation"]) && ((is_array($value[$dcPrefix."relation"]) && in_array($textAnnotationId, $value[$dcPrefix."relation"])) || (!is_array($value[$dcPrefix."relation"]) && strcmp($value[$dcPrefix."relation"], $textAnnotationId) === 0))) {
-                $dereferencedEntity = $this->getDereferencedEntity($value[$prefix."entity-reference"], $values);
-                if(null === $dereferencedEntity) {
+            if (isset($value["@type"]) && in_array($prefix . "EntityAnnotation", $value["@type"]) && isset($value[$dcPrefix . "relation"]) && ((is_array($value[$dcPrefix . "relation"]) && in_array($textAnnotationId, $value[$dcPrefix . "relation"])) || (!is_array($value[$dcPrefix . "relation"]) && strcmp($value[$dcPrefix . "relation"], $textAnnotationId) === 0))) {
+                $dereferencedEntity = $this->getDereferencedEntity($value[$prefix . "entity-reference"], $values);
+                if (null === $dereferencedEntity) {
                     continue;
                 }
 
                 $entity["uri"] = $dereferencedEntity["@id"];
-                $entity["confidence"] = $value[$prefix."confidence"];
-                $entity["label"] = is_array($value[$prefix."entity-label"]) ? $value[$prefix."entity-label"]["@value"] : $value[$prefix."entity-label"];
-                
+                $entity["confidence"] = $value[$prefix . "confidence"];
+                $entity["label"] = is_array($value[$prefix . "entity-label"]) ? $value[$prefix . "entity-label"]["@value"] : $value[$prefix . "entity-label"];
+
                 $dbpediaType = $this->getDbpediaEntityType($dereferencedEntity["@type"]);
-                if(null === $dbpediaType ) {
+                if (null === $dbpediaType) {
                     continue;
                 }
-                
+
                 $entity["type"] = $dbpediaType;
                 array_push($entities, $entity);
             }
@@ -260,7 +232,7 @@ class XowlStanbolService
         );
         return $entities;
     }
-    
+
     /**
      * <p>Gets the real entity object</p>
      * 
@@ -270,13 +242,13 @@ class XowlStanbolService
      */
     private function getDereferencedEntity($entityUri, $values) {
         $entity = null;
-        foreach($values as $value) {
-            if($value["@id"] === $entityUri) {
+        foreach ($values as $value) {
+            if ($value["@id"] === $entityUri) {
                 $entity = $value;
                 break;
             }
         }
-        
+
         return $entity;
     }
 
@@ -285,25 +257,19 @@ class XowlStanbolService
      * @param array $types The types of the entity
      * @return the DBPedia entity type (dbp-ont:person, dbp-ont:place, dbp-ont:Organisation) or null if no DBPedia entity type is found
      */
-    private function getDbpediaEntityType($types)
-    {
+    private function getDbpediaEntityType($types) {
         $types = is_array($types) ? $types : array($types);
-        foreach($types as $type) {
+        foreach ($types as $type) {
             switch ($type) {
                 case "dbp-ont:Person":
                 case "dbp-ont:Place":
                 case "dbp-ont:Organisation":
                     return self::$XIMDEX_TYPES[$type];
             }
-
         }
-        
+
         /* No DBPedia type found */
         return "others";
-
     }
 
 }
-?>
-
-
