@@ -255,7 +255,6 @@ function xowl_ckeditor_plugin()
 
 /**
  * <p>Callback function for 'xowl/enhance' endpoint</p>
- *
  * <p>This function calls Ximdex XOwl endpoint to analyze and enhance the content</p>
  */
 function xowl_enhance_content()
@@ -264,10 +263,5 @@ function xowl_enhance_content()
     $xowlEndpoint = variable_get('xowl_endpoint');
     $content = filter_input(INPUT_POST, 'content');
     $service = new XowlStanbolService($xowlEndpoint);
-    $data = $service->suggest($content)->getData();
-    $data["text"] = $content;
-
-    /*$result = '{"text":"Paris is the capital of France","semantic":{"people":[],"places":{"France":{"confidence":"98,52","type":"dPlace","isSemantic":1,"entities":[{"uri": "http://dbpedia.org/resource/France", "label": "France"}, {"uri": "http://dbpedia.org/resource/New_France", "label": "New France"}], "others":[{"@id":"urn:enhancement-3fb82789-1382-1540-f713-2fe4cbdddca8","@type":["enhancer:Enhancement","enhancer:TextAnnotation"],"dc:created":"2014-06-19T15:46:14.388Z","dc:creator":"org.apache.stanbol.enhancer.engines.opennlp.impl.NamedEntityExtractionEnhancementEngine","dc:type":"dbp-ont:Place","enhancer:confidence":0.9851806,"enhancer:end":30,"enhancer:extracted-from":"urn:content-item-sha1-2e431f6d6fb424581608115debe9f3d98e1f7fd9","enhancer:selected-text":{"@language":"en","@value":"France"},"enhancer:selection-context":{"@language":"en","@value":"Paris is the capital of France"},"enhancer:start":24}]},"Paris":{"confidence":"63,98","type":"dPlace","isSemantic":1,"entities":[{"uri": "http://dbpedia.org/resource/Paris", "label": "Paris"}, {"uri": "http://dbpedia.org/resource/Paris_Commune", "label": "Paris Commune"}], "others":[{"@id":"urn:enhancement-5cbd8c9e-e4b9-45cc-495e-bace5dee71af","@type":["enhancer:Enhancement","enhancer:TextAnnotation"],"dc:created":"2014-06-19T15:46:14.388Z","dc:creator":"org.apache.stanbol.enhancer.engines.opennlp.impl.NamedEntityExtractionEnhancementEngine","dc:type":"dbp-ont:Place","enhancer:confidence":0.63981426,"enhancer:end":5,"enhancer:extracted-from":"urn:content-item-sha1-2e431f6d6fb424581608115debe9f3d98e1f7fd9","enhancer:selected-text":{"@language":"en","@value":"Paris"},"enhancer:selection-context":{"@language":"en","@value":"Paris is the capital of France"},"enhancer:start":0}]}},"orgs":[]},"status":"ok"}';*/
-    header('Content-type: application/json');
-    echo json_encode($data);
+    echo $service->suggest($content);
 }
