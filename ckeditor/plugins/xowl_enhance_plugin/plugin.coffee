@@ -165,10 +165,10 @@ suggestions_field = jQuery '#suggestions_field'
 #    <p>Function to replace text annotation mentions by the entity annotation URI</p>
 #    @param result object result Containing the text, Text Annotations (with positions) and Entity Annotations
 #    @returns The text with the found mentions replaced
-    replaceXowlAnnotations =(result) ->
+    replaceXowlAnnotations = (result) ->
         processSemantic result.semantic
         result.text
-#        
+    
     processSemantic = (annotations) ->
         for textAnnotation in annotations
             mention = textAnnotation['selected-text']
