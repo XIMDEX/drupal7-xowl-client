@@ -14,19 +14,27 @@ a[data-cke-type] {
 }
 
 a[data-cke-type="dPlace"] {
-    background-color: #75BF25;
+    background-color: #43c35b;
 }
 
 a[data-cke-type="dPerson"] {
-    background-color: #1AC2FF;
+    background-color: #e32e3f;
 }
 
 a[data-cke-type="dOrganisation"] {
-    background-color: #EDB20F;
+    background-color: #d1ac2a;
+}
+
+a[data-cke-type="dProduct"] {
+    background-color: #c166d3;
+}
+
+a[data-cke-type="dWork"] {
+    background-color: #ff9985;
 }
 
 a[data-cke-type="others"] {
-    background-color: #888;
+    background-color: #5c9eda;
 }
 
 a[data-cke-suggestions]:before {
@@ -52,21 +60,15 @@ a[data-cke-suggestions] {
     position: relative;
 }
 
-a[data-cke-type="dPlace"]:before {
-    color: #75BF25;
-}
-
-a[data-cke-type="dPerson"]:before {
-    color: #1AC2FF;
-}
-
-a[data-cke-type="dOrganisation"]:before {
-    color: #EDB20F;
-}
-
+a[data-cke-type="dPlace"]:before, 
+[data-cke-type="dPerson"]:before,
+a[data-cke-type="dOrganisation"]:before,
+a[data-cke-type="dWork"]:before,
+a[data-cke-type="dProduct"]:before,
 a[data-cke-type="others"]:before {
     color: #888;
 }
+
 .xowl-loader {
     position: absolute;
     right: -50px;
