@@ -66,7 +66,7 @@ function xowl_menu()
     //Endpoint receiving Xowl enhance requests
     $items['xowl/enhance'] = array(
         'title' => 'Xowl Ajax enhance',
-        'description' => 'Analyze and enhance the content using XOwl',
+        'description' => 'Analyze and enhance the content using Xowl',
         'page callback' => 'xowl_enhance_content',
         'file' => '',
         'access arguments' => array('access content'),
@@ -84,14 +84,14 @@ function xowl_server_configuration_form()
     $form = array();
 
     $form['overview'] = array(
-        '#markup' => t('This interface allows the user to integrate the XOwl module with Drupal'),
+        '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal'),
         '#prefix' => '<p>',
         '#suffix' => '</p>',
     );
 
     $form['xowl_endpoint'] = array(
         '#title' => t('Endpoint'),
-        '#description' => t('Set the endpoint of the XOwl server. Example: http://domain.com:port/xowl'),
+        '#description' => t('Set the endpoint of the Xowl server. Example: http://domain.com[:port]/xowl'),
         '#type' => 'textfield',
         '#required' => TRUE,
         '#default_value' => variable_get('xowl_endpoint', 'http://localhost/xowl'),
@@ -255,7 +255,7 @@ function xowl_ckeditor_plugin()
 
 /**
  * <p>Callback function for 'xowl/enhance' endpoint</p>
- * <p>This function calls Ximdex XOwl endpoint to analyze and enhance the content</p>
+ * <p>This function calls Ximdex Xowl endpoint to analyze and enhance the content</p>
  */
 function xowl_enhance_content()
 {
