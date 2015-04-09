@@ -1,5 +1,5 @@
 # Xowl-service client for drupal 7
-This client allows you to enrich your content managed into Drupal with a semantic layer. You can test this service online here: http://demo.ximdex.com/xowl/
+This client allows you to enrich your content managed into Drupal with a semantic layer. You can test this service on-line here: http://demo.ximdex.com/xowl/
 
 ## Requirements
 * Drupal 7 core: https://www.drupal.org/project/drupal
@@ -15,25 +15,56 @@ This client allows you to enrich your content managed into Drupal with a semanti
 
 ![Installing Xowl module and its dependencies](/resources/images/drupal7_xowl_1.png)
 
-* If all the three modules are properly enabled, you are be able to configure them in the next step.
+If all the three modules are now properly enabled (in green), you are ready to configure them in the next step.
+
+![Modules installed](/resources/images/drupal7_xowl_2.png)
 
 ## Configuring all the new stuff
-* Configure ckeditor: configure -> CKEditor Global Profile -> edit. Check "Use toolbar Drag&Drop feature" as disabled.
-* more on ckeditor: configure -> Profiles -> Full -> edit. Expand *css* -> set *file path*: %hsites/all/modules/drupal7-xowl-client/resources/css/xowl.css. Next to css: **Editor Appearance**, add under "Maximize" a new item to the list: **['xowl_enhance_plugin_button']**
-* Save all changes.
 
-## Configure
-We can configure the module at modules -> xowl -> configure or in the new button *Xowl configuration*. We have two options:
+### Xowl service
 
- * Xowl Content Type selection: Select what kind of content we can analize.
- * Xowl server configuration: Full url to access the service.
+Start configuring the Xowl module. Access to its configuration on the tab called *Xowl Configuration* above or on the modules list, on the Xowl module's *Configure* link.
 
-## Use
-Login in portal and click on "add content" -> article. Select text format -> Full Html in ckeditor. Buttons will change and we'll see the last button on third row at the right. Let's write something like: "this is a free text about Albert Einstein" and click on the button.
+You have to select the content types that your are going to use to write your content and enrich it. Save the changes.
+
+![configuring Content Types](/resources/images/drupal7_xowl_3.png)
+
+To configure the service's URL, go to the another configuration link called *Xowl Server Configuration* and enter a valid Xowl service URL:
+
+![configuring the service's URL](/resources/images/drupal7_xowl_4.png)
+
+### CKeditor
+
+You also have to configure the **CKeditor** to integrate properly a custom button for Xowl requests with your content.
+
+![Configuring CKeditor](/resources/images/drupal7_xowl_5.png)
+
+![CKeditor global profile](/resources/images/drupal7_xowl_6.png)
+
+Check "Use toolbar Drag&Drop feature" as disabled.
+
+![Disabling ](/resources/images/drupal7_xowl_7.png)
+
+To insert the own CSS of the Xowl module into CKeditor, go to configure -> Profiles -> Full -> edit
+
+Select the *Expand css* option and set the input *file path* with the following value:
+
+%hsites/all/modules/drupal7-xowl-client/resources/css/xowl.css. 
+
+Next to css: **Editor Appearance**, add under "Maximize" a new item to the list: **['xowl_enhance_plugin_button']**
+
+Save all the changes made.
+
+## Usage
+
+To use this enrichment service, log in into your Drupal CMS and click on "Add new content" link and create, for example, a new article. 
+
+On the edition page, select *Full Html* text format on CKeditor options. Its toolbar will change and you'll see a new button at the end of the third row. Write something that make sense, like: "This is a free text about Albert Einstein and Karl Marx" and then click on the Xowl button.
 
 The text "Albert Einstein" will be highlighted with a color and a number. We can click on it to select the correct dbpedia entity. Now we can save and see on the text became a link to dbpedia uri that represents that entity.
 
 ## Notes
-This project is related with the client for drupal 8. Given that both drupal 7 and 8 have a very different structure, we have separated sub-projects.
 
-* Xowl service client for drupal 8: https://github.com/XIMDEX/drupal8-xowl-client
+We have been working hard to this client for the brand new Drupal 8 stable release. As you may know that there have been so many changes between Drupal 7 and 8, so our clients have a very different structure.
+
+You can find our **Xowl service client** for Drupal 8 [here](https://github.com/XIMDEX/drupal8-xowl-client).
