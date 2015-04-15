@@ -8,7 +8,7 @@ This client allows you to enrich your content managed into Drupal with a semanti
 * module Xowl for Drupal 7 (latest release v1.0): https://github.com/XIMDEX/drupal7-xowl-client/archive/v1.0.tar.gz
 
 ## Installing Xowl module
-* Install drupal 7 on your server as usual (more info [here](https://www.drupal.org/documentation/install/beginners)). 
+* Install drupal 7 on your server as usual (more info [here](https://www.drupal.org/documentation/install/beginners)).
 * Go to the following folder (<DRUPAL_ROOT> is your Drupal root path): <DRUPAL_ROOT>/sites/all/modules/.
 * Unzip all the downloaded drupal modules into this folder. At the end, you must have three folders, named: *ckeditor*, *drupal7-xowl-client*, *jquery_update*.
 * Access to your drupal web interface using a browser and select *modules* on the main menu. You'll see the Xowl module at the end of the list, but you can not install it yet because it depends on other two, **jquery_update** and **ckeditor**, so you have to enable them first.
@@ -49,15 +49,17 @@ To insert the own CSS of the Xowl module into CKeditor, go to configure -> Profi
 
 Select the *Expand css* option and set the input *file path* with the following value:
 
-%hsites/all/modules/drupal7-xowl-client/resources/css/xowl.css. 
+%hsites/all/modules/drupal7-xowl-client/resources/css/xowl.css.
 
 Next to css: **Editor Appearance**, add under "Maximize" a new item to the list: **['xowl_enhance_plugin_button']**
+
+Check the plugins list below and activate *Xowl plugin to allow enhancing content in CKEditor*
 
 Save all the changes made.
 
 ## Usage
 
-To use this enrichment service, log in into your Drupal CMS and click on "Add new content" link and create, for example, a new article. 
+To use this enrichment service, log in into your Drupal CMS and click on "Add new content" link and create, for example, a new article.
 
 On the edition page, select *Full Html* text format on CKeditor options. Its toolbar will change and you'll see a new button at the end of the third row. Write something that make sense, like: "This is a free text about Albert Einstein and Karl Marx" and then click on the Xowl button.
 
