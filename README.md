@@ -10,7 +10,7 @@ This client allows you to enrich your content managed into Drupal with a semanti
 ## Installing Xowl module
 * Install drupal 7 on your server as usual (more info [here](https://www.drupal.org/documentation/install/beginners)).
 * Go to the following folder (<DRUPAL_ROOT> is your Drupal root path): <DRUPAL_ROOT>/sites/all/modules/.
-* Unzip all the downloaded drupal modules into this folder. At the end, you must have three folders, named: *ckeditor*, *drupal7-xowl-client*, *jquery_update*.
+* Unzip all the downloaded drupal modules into this folder. At the end, you must have three folders, named: *ckeditor*, *drupal7-xowl-client-X.X*, *jquery_update*.
 * Access to your drupal web interface using a browser and select *modules* on the main menu. You'll see the Xowl module at the end of the list, but you can not install it yet because it depends on other two, **jquery_update** and **ckeditor**, so you have to enable them first.
 
 ![Installing Xowl module and its dependencies](/resources/images/drupal7_xowl_1.png)
@@ -47,13 +47,13 @@ Check "Use toolbar Drag&Drop feature" as disabled.
 
 To insert the own CSS of the Xowl module into CKeditor, go to configure -> Profiles -> Full -> edit
 
-Select the *Expand css* option and set the input *file path* with the following value:
+Expand *CSS* panel and set the input **Editor CSS** with the value *Define CSS* and the input **CSS file path** with the following value (change the X.X with your version):
 
-%hsites/all/modules/drupal7-xowl-client/resources/css/xowl.css.
+%hsites/all/modules/drupal7-xowl-client-X.X/resources/css/xowl.css
 
 Next to css: **Editor Appearance**, add under "Maximize" a new item to the list: **['xowl_enhance_plugin_button']**
 
-Check the plugins list below and activate *Xowl plugin to allow enhancing content in CKEditor*
+Check the plugins list below and activate **Xowl plugin to allow enhancing content in CKEditor**
 
 Save all the changes made.
 
