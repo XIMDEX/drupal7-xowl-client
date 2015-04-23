@@ -181,7 +181,7 @@ suggestions_field = jQuery '#suggestions_field'
     removeSuggestion = (editor)->
         $(editor.window.getFrame().$)
             .contents()
-            .find "[data-cke-annotation=\"#{selectedTextAnnotation}\"]" 
+            .find("[data-cke-annotation=\"#{selectedTextAnnotation}\"]") 
             .replaceWith selectedTextAnnotation 
         delete CKEDITOR.xowl.suggestions[selectedTextAnnotation] 
         return

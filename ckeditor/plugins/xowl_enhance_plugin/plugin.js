@@ -181,7 +181,7 @@ suggestions_field = jQuery('#suggestions_field');
     }
   };
   removeSuggestion = function(editor) {
-    $(editor.window.getFrame().$).contents().find(("[data-cke-annotation=\"" + selectedTextAnnotation + "\"]").replaceWith(selectedTextAnnotation));
+    $(editor.window.getFrame().$).contents().find("[data-cke-annotation=\"" + selectedTextAnnotation + "\"]").replaceWith(selectedTextAnnotation);
     delete CKEDITOR.xowl.suggestions[selectedTextAnnotation];
   };
   openXowlDialog = function(editor) {
