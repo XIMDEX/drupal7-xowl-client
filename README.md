@@ -69,12 +69,11 @@ After a few seconds, all the recognized entities will be highlighted with a colo
 
 ![Entities](/resources/images/drupal7_xowl_8.png)
 
-Red: People
-Green: Places
-Yellow: Organizations
-Light orange: Creative Works
-Blue: Other catagories
-
+* __Red:__ People
+* __Green:__ Places
+* __Yellow:__ Organizations
+* __Light orange:__ Creative Works
+* __Blue:__ Other catagories
 
 We can click on it to select the correct dbpedia entity. Now we can save and see on the text became a link to dbpedia uri that represents that entity.
 
@@ -82,6 +81,6 @@ We can click on it to select the correct dbpedia entity. Now we can save and see
 
 ## Notes
 
-We have been working hard to this client for the brand new Drupal 8 stable release. As you may know that there have been so many changes between Drupal 7 and 8, so our clients have a very different structure.
+We have been working hard to release this client for the Drupal community. Now we are developing a Xowl's client for the brand new Drupal 8 stable release. As you may know, there have been so many changes between Drupal 7 and 8, so these two clients will have some different behaviours.
 
 You can find our **Xowl service client** for Drupal 8 [here](https://github.com/XIMDEX/drupal8-xowl-client).
