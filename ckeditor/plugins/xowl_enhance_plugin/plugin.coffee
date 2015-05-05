@@ -46,12 +46,14 @@ suggestions_field = jQuery '#suggestions_field'
                         data: {content: content}
                     .done (data) ->
                         $loader.remove()
-                        if (data)
+                        if (data && data.text? && data.text.length > 0)
                             CKEDITOR.xowl['lastResponse'] = data
                             editor.setData '', () ->
                                 this.insertHtml replaceXowlAnnotations data 
                                 fillSuggestionsField()
                                 return
+                        else
+                            alert data.status + ": " + data.message
                         return
                     .fail () ->
                         $loader.remove()

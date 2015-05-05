@@ -76,10 +76,25 @@ function xowl_menu()
     return $items;
 }
 
+function xowl_server_configuration_form_validate($form, &$form_state) {
+    $xowl_usertoken = variable_get('xowl_usertoken');
+    $token_input = $form_state['values']['token_input'];
+    $xowl_ajaxtoken = variable_get('xowl_ajaxtoken');
+    
+    if($xowl_ajaxtoken) {
+        variable_set('xowl_usertoken', $xowl_ajaxtoken);
+    }
+    else if ($token_input !== null) {
+        variable_set('xowl_usertoken', $token_input);
+    }
+    
+    variable_set('xowl_ajaxtoken', false);
+}
+
 /**
  * <p>Configuration form for Xowl module</p>
  */
-function xowl_server_configuration_form()
+function xowl_server_configuration_form($form, &$form_state)
 {
     $form = array();
 
@@ -97,8 +112,57 @@ function xowl_server_configuration_form()
         '#default_value' => variable_get('xowl_endpoint', 'http://localhost/xowl'),
     );
 
+    $token = variable_get('xowl_usertoken', '');
+    $form['token_input'] = array(
+      '#type' => 'textfield',
+      '#default_value' => $token,
+      '#title' => t("API token"),
+      '#prefix' => '<div id="replace_button_div">',
+      '#suffix' => '</div>',
+    );
+    $form['ajax_button'] = array(
+      '#type' => 'button',
+      '#value' => t("Get token"),
+        '#ajax' => array(
+            'callback' => 'ajax_getapi_callback',
+            'wrapper' => 'replace_button_div',
+        ),
+    );
+    
     return system_settings_form($form);
 }
+
+function ajax_getapi_callback($form, $form_state) {
+    $endpoint = variable_get('xowl_endpoint');
+    if (!$endpoint) {
+        watchdog('MISSING ENDPOINT', "Cannot get api without proper endpoint", WATCHDOG_ERROR);
+        return false;
+    }
+    
+    // use endpoint to calculate url
+    $parts = explode("/", $endpoint);
+    array_pop($parts);
+    array_push($parts, 'getapikey');
+    $getapikeyUrl = implode("/", $parts);
+    
+    // request apikey to xowl service
+    $ch = curl_init($getapikeyUrl);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_POST, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    if(curl_errno($ch)){
+        watchdog('BAD RESPONSE', "Server response was wrong ($ch): " . curl_error($ch), WATCHDOG_ERROR);
+        return false;
+    }
+    $json = curl_exec($ch);
+    curl_close($ch);
+    
+    // pass response to form
+    $data = json_decode($json, true);
+    variable_set('xowl_ajaxtoken', $data['token']);
+    return (!empty($data['token']))? $data['token'] : false;
+}
+
 
 /**
  * Implements hook_form.

@@ -53,12 +53,14 @@ suggestions_field = jQuery('#suggestions_field');
             }
           }).done(function(data) {
             $loader.remove();
-            if (data) {
+            if (data && (data.text != null) && data.text.length > 0) {
               CKEDITOR.xowl['lastResponse'] = data;
               editor.setData('', function() {
                 this.insertHtml(replaceXowlAnnotations(data));
                 fillSuggestionsField();
               });
+            } else {
+              alert(data.status + ": " + data.message);
             }
           }).fail(function() {
             $loader.remove();

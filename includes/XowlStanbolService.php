@@ -57,8 +57,9 @@ class XowlStanbolService {
      * @return this. 
      */
     private function query($text) {
+        $token = variable_get('xowl_usertoken', '000-00000-000');
         $dataText = array(
-            'token' => '000-00000-000',
+            'token' => $token,
             'content' => $text
         );
 
