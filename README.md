@@ -61,12 +61,26 @@ Save all the changes made.
 
 To use this enrichment service, log in into your Drupal CMS and click on "Add new content" link and create, for example, a new article.
 
-On the edition page, select *Full Html* text format on CKeditor options. Its toolbar will change and you'll see a new button at the end of the third row. Write something that make sense, like: "This is a free text about Albert Einstein and Karl Marx" and then click on the Xowl button.
+On the edition page, select *Full Html* text format on CKeditor options. Its toolbar will change and you'll see a new button at the end of the third row, pretty similar to a book and a pencil. 
 
-The text "Albert Einstein" will be highlighted with a color and a number. We can click on it to select the correct dbpedia entity. Now we can save and see on the text became a link to dbpedia uri that represents that entity.
+Now you can write some relevant sentences and then click on the Xowl button.
+
+After a few seconds, all the recognized entities will be highlighted with a color and a number. The color means the following:
+
+![Entities](/resources/images/drupal7_xowl_8.png)
+
+* __Red:__ People
+* __Green:__ Places
+* __Yellow:__ Organizations
+* __Light orange:__ Creative Works
+* __Blue:__ Other catagories
+
+We can click on it to select the correct dbpedia entity. Now we can save and see on the text became a link to dbpedia uri that represents that entity.
+
+![Disambiguation](/resources/images/drupal7_xowl_9.png)
 
 ## Notes
 
-We have been working hard to this client for the brand new Drupal 8 stable release. As you may know that there have been so many changes between Drupal 7 and 8, so our clients have a very different structure.
+We have been working hard to release this client for the Drupal community. Now we are developing a Xowl's client for the brand new Drupal 8 stable release. As you may know, there have been so many changes between Drupal 7 and 8, so these two clients will have some different behaviours.
 
 You can find our **Xowl service client** for Drupal 8 [here](https://github.com/XIMDEX/drupal8-xowl-client).
