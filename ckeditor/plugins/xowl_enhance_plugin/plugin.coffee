@@ -158,7 +158,7 @@ suggestions_field = jQuery '#suggestions_field'
                     return
                 return
             return
-#            
+
 #    #
 #    #  functions
 #    # 
@@ -168,11 +168,23 @@ suggestions_field = jQuery '#suggestions_field'
 #    @param result object result Containing the text, Text Annotations (with positions) and Entity Annotations
 #    @returns The text with the found mentions replaced
     replaceXowlAnnotations = (result) ->
+        re = /<a[^<]*<\/a>/g
+        reHref = /href="([^"]*)"/
+        src = result.text
+        while ((arr = re.exec(src)) != null)
+            oldLink = arr[0]
+            reHref.exec oldLink
+            oldHref = RegExp.$1
+            newHref = oldHref.replace 'dbpedia.org/resource', 'en.wikipedia.org/wiki'
+            newLink = oldLink.replace oldHref, newHref
+            src = src.replace(oldLink, newLink)
         processSemantic result.semantic
-        result.text
+        src
     
     processSemantic = (annotations) ->
         for textAnnotation in annotations
+            for ent in textAnnotation.entities
+                ent.uri = ent.uri.replace 'dbpedia.org/resource', 'en.wikipedia.org/wiki'
             mention = textAnnotation['selected-text']
             entity = textAnnotation.entities[0]
             numSuggestions = textAnnotation.entities.length
