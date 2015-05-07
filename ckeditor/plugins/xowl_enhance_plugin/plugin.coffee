@@ -159,11 +159,6 @@ suggestions_field = jQuery '#suggestions_field'
                 return
             return
 
-#    #
-#    #  functions
-#    # 
-#    ###
-
 #    <p>Function to replace text annotation mentions by the entity annotation URI</p>
 #    @param result object result Containing the text, Text Annotations (with positions) and Entity Annotations
 #    @returns The text with the found mentions replaced
@@ -181,15 +176,25 @@ suggestions_field = jQuery '#suggestions_field'
         processSemantic result.semantic
         src
     
-    processSemantic = (annotations) ->
-        for textAnnotation in annotations
-            for ent in textAnnotation.entities
+    processSemantic = (aSemantic) ->
+        for oSemanticSet in aSemantic
+            # delete duplicated entities
+            filteredEntities = []
+            f = -1
+            sortedEntities = oSemanticSet.entities.sort (a,b) ->
+                a.uri.localeCompare b.uri
+            for ann in sortedEntities
+                if f == -1 || sortedEntities[f] != ann
+                    filteredEntities.push ann
+                    f++
+            # use filteredAnnotations
+            for ent in filteredEntities
                 ent.uri = ent.uri.replace 'dbpedia.org/resource', 'en.wikipedia.org/wiki'
-            mention = textAnnotation['selected-text']
-            entity = textAnnotation.entities[0]
-            numSuggestions = textAnnotation.entities.length
+            mention = oSemanticSet['selected-text']
+            entity = oSemanticSet.entities[0]
+            numSuggestions = oSemanticSet.entities.length
             CKEDITOR.xowl.suggestions[mention.value] = entity.uri
-            CKEDITOR.xowl.entities[mention.value] = textAnnotation.entities
+            CKEDITOR.xowl.entities[mention.value] = oSemanticSet.entities
         return
         
     removeSuggestion = (editor)->

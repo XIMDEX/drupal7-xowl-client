@@ -294,7 +294,6 @@ function xowl_node_delete($node)
    //TODO: Implements logic when a Drupal node is deleted
 }
 
-
 /**
  * <p>Implements hook_ckeditor_plugin().</p>
  *

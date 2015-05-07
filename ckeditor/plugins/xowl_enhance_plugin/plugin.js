@@ -183,20 +183,31 @@ suggestions_field = jQuery('#suggestions_field');
     processSemantic(result.semantic);
     return src;
   };
-  processSemantic = function(annotations) {
-    var ent, entity, mention, numSuggestions, textAnnotation, _i, _j, _len, _len1, _ref;
-    for (_i = 0, _len = annotations.length; _i < _len; _i++) {
-      textAnnotation = annotations[_i];
-      _ref = textAnnotation.entities;
-      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-        ent = _ref[_j];
+  processSemantic = function(aSemantic) {
+    var ann, ent, entity, f, filteredEntities, mention, numSuggestions, oSemanticSet, sortedEntities, _i, _j, _k, _len, _len1, _len2;
+    for (_i = 0, _len = aSemantic.length; _i < _len; _i++) {
+      oSemanticSet = aSemantic[_i];
+      filteredEntities = [];
+      f = -1;
+      sortedEntities = oSemanticSet.entities.sort(function(a, b) {
+        return a.uri.localeCompare(b.uri);
+      });
+      for (_j = 0, _len1 = sortedEntities.length; _j < _len1; _j++) {
+        ann = sortedEntities[_j];
+        if (f === -1 || sortedEntities[f] !== ann) {
+          filteredEntities.push(ann);
+          f++;
+        }
+      }
+      for (_k = 0, _len2 = filteredEntities.length; _k < _len2; _k++) {
+        ent = filteredEntities[_k];
         ent.uri = ent.uri.replace('dbpedia.org/resource', 'en.wikipedia.org/wiki');
       }
-      mention = textAnnotation['selected-text'];
-      entity = textAnnotation.entities[0];
-      numSuggestions = textAnnotation.entities.length;
+      mention = oSemanticSet['selected-text'];
+      entity = oSemanticSet.entities[0];
+      numSuggestions = oSemanticSet.entities.length;
       CKEDITOR.xowl.suggestions[mention.value] = entity.uri;
-      CKEDITOR.xowl.entities[mention.value] = textAnnotation.entities;
+      CKEDITOR.xowl.entities[mention.value] = oSemanticSet.entities;
     }
   };
   removeSuggestion = function(editor) {
