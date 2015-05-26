@@ -7,6 +7,9 @@ This client allows you to enrich your content managed into Drupal with a semanti
 * module jquery_update: http://ftp.drupal.org/files/projects/jquery_update-7.x-2.5.tar.gz
 * module Xowl for Drupal 7 (latest release v1.0): https://github.com/XIMDEX/drupal7-xowl-client/archive/v1.0.tar.gz
 
+## Optional
+* potx: "Translation template extractor" module allows easy strings translation during development.
+
 ## Installing Xowl module
 * Install drupal 7 on your server as usual (more info [here](https://www.drupal.org/documentation/install/beginners)).
 * Go to the following folder (<DRUPAL_ROOT> is your Drupal root path): <DRUPAL_ROOT>/sites/all/modules/.
@@ -19,7 +22,11 @@ If all the three modules are now properly enabled (in green), you are ready to c
 
 ![Modules installed](/resources/images/drupal7_xowl_2.png)
 
-## Configuring all the new stuff
+## Translations
+Ensure "locale" module is enabled. Go to configuration -> Regional and language 
+-> translate interface -> import
+Load local file translations/es.po and clear caches. Set spanish language in drupal 
+administration.
 
 ### Xowl service
 

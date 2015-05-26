@@ -37,16 +37,16 @@ function xowl_menu()
 {
     $items = array();
     $items['admin/settings/xowl'] = array(
-        'title' => 'Xowl Configuration',
-        'description' => 'Configuration for Xowl module',
+        'title' => t('Xowl Configuration'),
+        'description' => t('Configuration for Xowl module'),
         'access arguments' => array('access administration pages'),
         'type' => MENU_NORMAL_ITEM
     );
 
     // Admin interface Xowl server
     $items['admin/settings/xowl/server'] = array(
-        'title' => 'Xowl server configuration',
-        'description' => 'Xowl server-related configuration',
+        'title' => t('Xowl server configuration'),
+        'description' => t('Xowl server-related configuration'),
         'page callback' => 'drupal_get_form',
         'page arguments' => array('xowl_server_configuration_form'),
         'access arguments' => array('access administration pages'), // Only users with that permission
@@ -55,8 +55,8 @@ function xowl_menu()
 
     //Admin interface Content type selection form
     $items['admin/settings/xowl/allowed-content-type'] = array(
-        'title' => 'Xowl Content Type selection',
-        'description' => 'Allows selecting Content Types that will be enabled to use Xowl to enrich content',
+        'title' => t('Xowl Content Type selection'),
+        'description' => t('Allows selecting Content Types that will be enabled to use Xowl to enrich content'),
         'page callback' => 'drupal_get_form',
         'page arguments' => array('xowl_allowed_content_type_form'),
         'access arguments' => array('access administration pages'),
@@ -65,8 +65,8 @@ function xowl_menu()
 
     //Endpoint receiving Xowl enhance requests
     $items['xowl/enhance'] = array(
-        'title' => 'Xowl Ajax enhance',
-        'description' => 'Analyze and enhance the content using Xowl',
+        'title' => t('Xowl Ajax enhance'),
+        'description' => t('Analyze and enhance the content using Xowl'),
         'page callback' => 'xowl_enhance_content',
         'file' => '',
         'access arguments' => array('access content'),
@@ -78,17 +78,8 @@ function xowl_menu()
 
 function xowl_server_configuration_form_validate($form, &$form_state) {
     $xowl_usertoken = variable_get('xowl_usertoken');
-    $token_input = $form_state['values']['token_input'];
-    $xowl_ajaxtoken = variable_get('xowl_ajaxtoken');
-    
-    if($xowl_ajaxtoken) {
-        variable_set('xowl_usertoken', $xowl_ajaxtoken);
-    }
-    else if ($token_input !== null) {
-        variable_set('xowl_usertoken', $token_input);
-    }
-    
-    variable_set('xowl_ajaxtoken', false);
+    $token_input = $form_state['values']['token_input'] . '';
+    variable_set('xowl_usertoken', $token_input);
 }
 
 /**
@@ -99,33 +90,46 @@ function xowl_server_configuration_form($form, &$form_state)
     $form = array();
 
     $form['overview'] = array(
-        '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal'),
+        '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal. If you need a token, visit: <a target="_blank" href="@xowlPortal">xowl register</a>', array('@xowlPortal' => 'http://xowl-register.lab13.ximdex.net/')),
         '#prefix' => '<p>',
         '#suffix' => '</p>',
     );
 
     $form['xowl_endpoint'] = array(
-        '#title' => t('Endpoint'),
-        '#description' => t('Set the endpoint of the Xowl server. Example: http://domain.com[:port]/xowl'),
+        '#title' => t('Xowl Endpoint'),
+        '#description' => t('Set the endpoint of the Xowl server. Example: @exampleUrl', array('@exampleUrl' => 'http://domain.com[:port]/xowl')),
         '#type' => 'textfield',
-        '#required' => TRUE,
+        '#required' => true,
         '#default_value' => variable_get('xowl_endpoint', 'http://localhost/xowl'),
     );
 
     $token = variable_get('xowl_usertoken', '');
-    $form['token_input'] = array(
-      '#type' => 'textfield',
-      '#default_value' => $token,
-      '#title' => t("API token"),
-      '#prefix' => '<div id="replace_button_div">',
-      '#suffix' => '</div>',
-    );
-    $form['ajax_button'] = array(
-      '#type' => 'button',
-      '#value' => t("Get token"),
-        '#ajax' => array(
-            'callback' => 'ajax_getapi_callback',
-            'wrapper' => 'replace_button_div',
+    drupal_add_css('.inline-elems>div{display: inline;}', array('group' => CSS_THEME, 'type' => 'inline'));
+    $form['inlined'] = array(
+        '#type' => 'container',
+        '#attributes' => array(
+            'class' => array('inline-elems')
+        ),
+        'token_input' => array(
+            '#type' => 'textfield',
+            '#default_value' => $token,
+            '#title' => t("API token"),
+        ),
+        'pair' => array(
+            '#prefix' => '<div>',
+            '#suffix' => '</div>',
+            
+            'ajax_button' => array(
+                '#type' => 'button',
+                '#value' => t("Check token"),
+                '#ajax' => array(
+                    'callback' => 'ajax_getapi_callback'
+                ),
+            ),
+            'token_valid' => array(
+                '#prefix' => '<span id="token_valid_span">',
+                '#suffix' => '</span>',
+            )
         ),
     );
     
@@ -140,9 +144,11 @@ function ajax_getapi_callback($form, $form_state) {
     }
     
     // use endpoint to calculate url
+    $endpoint = 'http://xowl-register.lab13.ximdex.net';
     $parts = explode("/", $endpoint);
-    array_pop($parts);
-    array_push($parts, 'getapikey');
+    array_push($parts, 'check-token');
+    $inputToken = $form_state['values']['token_input'] . '';
+    array_push($parts, $inputToken);
     $getapikeyUrl = implode("/", $parts);
     
     // request apikey to xowl service
@@ -159,8 +165,16 @@ function ajax_getapi_callback($form, $form_state) {
     
     // pass response to form
     $data = json_decode($json, true);
-    variable_set('xowl_ajaxtoken', $data['token']);
-    return (!empty($data['token']))? $data['token'] : false;
+    $commands = array();
+    if (empty($data['error'])) {
+        variable_set('xowl_usertoken', $inputToken);
+        $commands[] = ajax_command_html('#token_valid_span', '<span style="color:green">' . t('valid token') . '</span>');
+    }
+    else {
+        $commands[] = ajax_command_html('#token_valid_span', '<span style="color:red">' . t('invalid token') . '</span>');
+    }
+    
+    return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 
@@ -174,7 +188,7 @@ function xowl_allowed_content_type_form($node, &$form_state) {
 
   $form['overview'] = array(
     '#prefix' => '<p>',
-    '#markup' => t('This interface allows the user to select content types that will be enabled to use Xowl for enrichment'),
+    '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal. If you need a token, visit: <a target="_blank" href="@xowlPortal">xowl register</a>', array('@xowlPortal' => 'http://xowl-register.lab13.ximdex.net/')),
     '#suffix' => '</p>',
   );
 
@@ -193,7 +207,7 @@ function xowl_allowed_content_type_form($node, &$form_state) {
   $current_forms_values = check_plain(variable_get('xowl_allowed_forms', ''));
   $form['xowl_allowed_forms'] = array(
     '#type' => 'textarea',
-    '#title' => t('Set other allowed forms where it\'ll use the xowl plugin'),
+    '#title' => t('Set other allowed forms where it will use the xowl plugin'),
     '#description' => t('Set a set of forms separated by commas'),
     '#default_value' => $current_forms_values,
   );
