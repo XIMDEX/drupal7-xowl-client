@@ -96,11 +96,11 @@ function xowl_server_configuration_form($form, &$form_state)
     );
 
     $form['xowl_endpoint'] = array(
-        '#title' => t('Xowl Endpoint'),
-        '#description' => t('Set the endpoint of the Xowl server. Example: @exampleUrl', array('@exampleUrl' => 'http://domain.com[:port]/xowl')),
+        '#title' => t('Xowl API Endpoint'),
+        '#description' => t('Set the endpoint of the Xowl API. Example: @exampleUrl', array('@exampleUrl' => 'http://xowl.ximdex.net/api/v1')),
         '#type' => 'textfield',
         '#required' => true,
-        '#default_value' => variable_get('xowl_endpoint', 'http://localhost/xowl'),
+        '#default_value' => variable_get('xowl_endpoint', 'http://xowl.ximdex.net/api/v1'),
     );
 
     $token = variable_get('xowl_usertoken', '');
@@ -142,14 +142,8 @@ function ajax_getapi_callback($form, $form_state) {
         watchdog('MISSING ENDPOINT', "Cannot get api without proper endpoint", WATCHDOG_ERROR);
         return false;
     }
-    
-    // use endpoint to calculate url
-    $endpoint = 'http://xowl-register.lab13.ximdex.net';
-    $parts = explode("/", $endpoint);
-    array_push($parts, 'check-token');
-    $inputToken = $form_state['values']['token_input'] . '';
-    array_push($parts, $inputToken);
-    $getapikeyUrl = implode("/", $parts);
+
+    $getapikeyUrl =  $endpoint . "check?token=' . $form_state['values']['token_input'] ;
     
     // request apikey to xowl service
     $ch = curl_init($getapikeyUrl);
@@ -166,8 +160,8 @@ function ajax_getapi_callback($form, $form_state) {
     // pass response to form
     $data = json_decode($json, true);
     $commands = array();
-    if (empty($data['error'])) {
-        variable_set('xowl_usertoken', $inputToken);
+    if (isset(  $data['status'])  &&  $data['status'] == "ok") {
+        variable_set('xowl_usertoken',$form_state['values']['token_input'] );
         $commands[] = ajax_command_html('#token_valid_span', '<span style="color:green">' . t('valid token') . '</span>');
     }
     else {
