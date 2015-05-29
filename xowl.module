@@ -143,7 +143,7 @@ function ajax_getapi_callback($form, $form_state) {
         return false;
     }
 
-    $getapikeyUrl =  $endpoint . "check?token=' . $form_state['values']['token_input'] ;
+    $getapikeyUrl =  $endpoint . "/check?token=' . $form_state['values']['token_input'] ;
     
     // request apikey to xowl service
     $ch = curl_init($getapikeyUrl);
