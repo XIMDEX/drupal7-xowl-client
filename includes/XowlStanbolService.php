@@ -80,7 +80,7 @@ class XowlStanbolService {
             'method' => $method,
             'data' => $content
         );
-        $response = drupal_http_request($this->endpoint, $options);
+        $response = drupal_http_request($this->endpoint . '/enhance', $options);
         return $response;
     }
 
