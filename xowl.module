@@ -143,8 +143,8 @@ function ajax_getapi_callback($form, $form_state) {
         return false;
     }
 
-    $getapikeyUrl =  $endpoint . "/check?token=' . $form_state['values']['token_input'] ;
-    
+    $getapikeyUrl =  $endpoint . "/check?token=" . $form_state['values']['token_input'] ;
+
     // request apikey to xowl service
     $ch = curl_init($getapikeyUrl);
     curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -159,8 +159,9 @@ function ajax_getapi_callback($form, $form_state) {
     
     // pass response to form
     $data = json_decode($json, true);
+    
     $commands = array();
-    if (isset(  $data['status'])  &&  $data['status'] == "ok") {
+    if (isset($data['status'])  &&  $data['status'] == "ok") {
         variable_set('xowl_usertoken',$form_state['values']['token_input'] );
         $commands[] = ajax_command_html('#token_valid_span', '<span style="color:green">' . t('valid token') . '</span>');
     }
