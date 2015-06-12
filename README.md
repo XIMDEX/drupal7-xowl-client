@@ -23,9 +23,9 @@ If all the three modules are now properly enabled (in green), you are ready to c
 ![Modules installed](/resources/images/drupal7_xowl_2.png)
 
 ## Translations
-Ensure "locale" module is enabled. Go to configuration -> Regional and language 
+Ensure "locale" module is enabled. Go to configuration -> Regional and language
 -> translate interface -> import
-Load local file translations/es.po and clear caches. Set spanish language in drupal 
+Load local file translations/es.po and clear caches. Set spanish language in drupal
 administration.
 
 ### Xowl service
@@ -36,7 +36,9 @@ You have to select the content types that your are going to use to write your co
 
 ![configuring Content Types](/resources/images/drupal7_xowl_3.png)
 
-To configure the service's URL, go to the another configuration link called *Xowl Server Configuration* and enter a valid Xowl service URL:
+To configure the service's URL, go to the another configuration link called *Xowl Server Configuration* and enter a valid Xowl service URL (default: http://xowl.ximdex.net/api/v1).
+You will need a valid API token, if you don't have one, you have to visit the link *xowl register*
+and follow the steps:
 
 ![configuring the service's URL](/resources/images/drupal7_xowl_4.png)
 
@@ -68,7 +70,7 @@ Save all the changes made.
 
 To use this enrichment service, log in into your Drupal CMS and click on "Add new content" link and create, for example, a new article.
 
-On the edition page, select *Full Html* text format on CKeditor options. Its toolbar will change and you'll see a new button at the end of the third row, pretty similar to a book and a pencil. 
+On the edition page, select *Full Html* text format on CKeditor options. Its toolbar will change and you'll see a new button at the end of the third row, pretty similar to a book and a pencil.
 
 Now you can write some relevant sentences and then click on the Xowl button.
 
