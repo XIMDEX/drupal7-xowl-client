@@ -7491,12 +7491,12 @@ msgstr "Configuración del tipo de contenido para Xowl"
 #: admin/settings/xowl/server
 msgid ""
 "This interface allows the user to integrate the Xowl module with Drupal. If "
-"you need a token, visit: <a target=\"_blank\" href=\"http://xowl-register.lab13."
-"ximdex.net/\">xowl register</a>"
+"you need a token, visit: <a target=\"_blank\" href=\"http://x8.ximdex.net/register/signup"
+"\">xowl register</a>"
 msgstr ""
 "Esta interfaz permite al usuario integrar el módulo Xowl con drupal. Si "
-"necesita un token, visite: <a target=\"_blank\" href=\"http://xowl-register."
-"lab13.ximdex.net/\">registro xowl</a>"
+"necesita un token, visite: <a target=\"_blank\" href=\"http://x8.ximdex.net/register/signup"
+"\">registro xowl</a>"
 
 #: admin/settings/xowl/server
 msgid "Endpoint"
@@ -7535,8 +7535,8 @@ msgid ""
 "register</a>"
 msgstr ""
 "Esta interfaz permite al usuario integrar el módulo Xowl con drupal. Si "
-"necesita un token, visite: <a target=\"_blank\" href=\"http://xowl-register."
-"lab13.ximdex.net/\">registro xowl</a>"
+"necesita un token, visite: <a target=\"_blank\" href=\"http://x8.ximdex.net/register/signup"
+"\">registro xowl</a>"
 
 #: admin/settings/xowl/server
 msgid "Set the endpoint of the Xowl server. Example: @exampleUrl"

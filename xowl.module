@@ -90,7 +90,7 @@ function xowl_server_configuration_form($form, &$form_state)
     $form = array();
 
     $form['overview'] = array(
-        '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal. If you need a token, visit: <a target="_blank" href="@xowlPortal">xowl register</a>', array('@xowlPortal' => 'http://xowl-register.lab13.ximdex.net/')),
+        '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal. If you need a token, visit: <a target="_blank" href="@xowlPortal">xowl register</a>', array('@xowlPortal' => 'http://x8.ximdex.net/register/signup')),
         '#prefix' => '<p>',
         '#suffix' => '</p>',
     );
@@ -183,7 +183,7 @@ function xowl_allowed_content_type_form($node, &$form_state) {
 
   $form['overview'] = array(
     '#prefix' => '<p>',
-    '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal. If you need a token, visit: <a target="_blank" href="@xowlPortal">xowl register</a>', array('@xowlPortal' => 'http://xowl-register.lab13.ximdex.net/')),
+    '#markup' => t('This interface allows the user to integrate the Xowl module with Drupal. If you need a token, visit: <a target="_blank" href="@xowlPortal">xowl register</a>', array('@xowlPortal' => 'http://x8.ximdex.net/register/signup')),
     '#suffix' => '</p>',
   );
 
