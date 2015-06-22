@@ -73,7 +73,7 @@ function xowl_createXMLRepresentation($htmlContent)
 
     $returnedXML = "<document><content>" . $xml . "</content>";
     $returnedXML .= "<tags>";
-    if(count($info['xedit-tags'])>0){
+    if(isset($info['xedit-tags']) && count($info['xedit-tags'])>0){
         foreach ($info['xedit-tags'] as $tag) {
             $returnedXML .= "<tag>" . $tag . "</tag>";
         }
