@@ -228,13 +228,12 @@ function xowl_form_alter(&$form, &$form_state, $form_id) {
     if ($check_content_type || $check_is_allowed_form) {
         drupal_add_js(array('xowl' => array('enable_xowl' => 1,"xowl_path" => drupal_get_path('module', 'xowl'), "basedir" => base_path() . drupal_get_path('module', 'xowl'), "dbase_path" => url(NULL, array('absolute' => TRUE)) ), ),'setting');
         drupal_add_css(drupal_get_path('module', 'xowl') . '/resources/css/xowl.css', 'file');
-        /* Adding a hidden field to store the selected suggestions */
+        // Adding a hidden field to store the selected suggestions
         $form['suggestions'] = array(
         '#title' => t('Suggestions'),
         '#description' => t('Selected suggestions'),
         '#type' => 'hidden',
             '#attributes' => array('id' => "suggestions_field"),
-
         '#weight' => 0
         );
 
@@ -261,46 +260,30 @@ function xowl_validate($form, &$form_state) {
  * @param type $form_state
  */
 function xowl_submit($form, &$form_state) {
-     module_invoke_all('xowl_form_submit', $form, $form_state);
+     module_invoke_all('xowl_forms_submit', $form, $form_state);
+}
+
+function filter_post_data($content) {
+    $changeFrom = array('/<a class="xowl-suggestion"(.*)(data-(.*))?>/iUs');
+    $content = preg_replace($changeFrom, '<a \1>', $content);
+    return $content;
 }
 
 /**
  * <p>Implements hook_node_insert</p>
  * <p>Creates the XML representation of the node to be sent to Ximdex</p>
  */
-function xowl_node_insert($node)
-{
+function processNode($node) {
     module_load_include('util', 'xowl', 'includes/xowl');
     $body = isset($node->body['und'][0]['value']) ? $node->body['und'][0]['value'] : '';
-    $xml = xowl_createXMLRepresentation($body);
-
-    // Uses the generated XML
-    // Ex. print XML to log
-    error_log($xml);
+    $body = filter_post_data($body);
+    $node->body['und'][0]['value'] = $body;
+//    xowl_createXMLRepresentation($body);
 }
 
-/**
- * <p>Implements hook_node_update</p>
- * <p>Creates the XML representation of the node to be sent to Ximdex</p>
- */
-function xowl_node_update($node)
+function xowl_node_presave($node)
 {
-    module_load_include('util', 'xowl', 'includes/xowl');
-    $body = isset($node->body['und'][0]['value']) ? $node->body['und'][0]['value'] : '';
-    $xml = xowl_createXMLRepresentation($body);
-
-    // Uses the generated XML
-    // Ex. print XML to log
-    error_log($xml);
-}
-
-/**
- * <p>Implements hook_node_delete</p>
- * <p>Remove the node from Ximdex</p>
- */
-function xowl_node_delete($node)
-{
-   //TODO: Implements logic when a Drupal node is deleted
+    processNode($node);
 }
 
 /**

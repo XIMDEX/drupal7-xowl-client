@@ -15,6 +15,19 @@ suggestions_field = jQuery('#suggestions_field');
 (function ($) {
     var fillSuggestionsField, openXowlDialog, processSemantic, removeSuggestion, replaceXowlAnnotations;
     CKEDITOR.config.allowedContent = true;
+
+    function preClean(content) {
+        var $content = $('<div></div>').append($.parseHTML(content));
+        $('a.xowl-suggestion', $content).each(function () {
+            $(this).removeAttr("data-cke-suggestions");
+            $(this).removeAttr("data-entity-position");
+            $(this).removeAttr("data-cke-annotation");
+            $(this).removeAttr("data-cke-type");
+            $(this).removeClass("xowl-suggestion");
+        });
+        return $content.html();
+    }
+
     CKEDITOR.plugins.add('xowl_enhance_plugin', {
         init: function (editor) {
             window.parent.ceditor = editor;
@@ -38,7 +51,7 @@ suggestions_field = jQuery('#suggestions_field');
             editor.addCommand('xowl_content_enhance_command', {
                 exec: function () {
                     var $loader, content;
-                    content = editor.getData();
+                    content = preClean(editor.getData());
                     $loader = $("<div/>", {
                         "class": 'loader'
                     });
